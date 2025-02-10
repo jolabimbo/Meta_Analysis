@@ -1,0 +1,59 @@
+#Loading libraries
+library(tidyverse)
+library(meta)
+library(metafor)
+
+#load File into R
+library(readxl)
+Lum <- read_excel("new_lum.xlsx")
+
+#View file structure
+View(Lum)
+head(Lum,10)
+summary(Lum)
+
+#Forest plot estimating LuminalA prevalence
+Lumi <- metaprop(Lum, Total, studlab=Study, layout="RevMan5", byvar = Region, sm="PFT", data=Lum, method="Inverse", method.tau ="DL", pscale = 100)
+View(Lumi)
+
+#Store results as a pdf file
+pdf(file="forest_plot.pdf", width=8, height=12)
+
+forest.meta(Lumi, 
+            leftlabs = c("Study", "Luminal", "Total"),
+            rightlabs = c("Luminal frequency(%)", "95% CI", "Weight"),
+            xlim = c(0,100),
+            xlab="Luminal prevalence %",
+            subgroup = TRUE,
+            print.byvar = FALSE,
+            col.diamond = "white",
+            col.diamond.lines = "black",
+            col.predict.lines = "black",
+            col.study = "black",
+            col.square.lines = "black",
+            print.I2.ci = TRUE,
+            digits.sd = 2,
+            fontsize = 8,
+            plotwidth = "4cm",
+            spacing = 0.65,
+            overall.hetstat=TRUE,
+            test.overall.common=FALSE,
+            test.overall.random=TRUE,
+            test.effect.subgroup.common=FALSE,
+            type.common = "diamond", 
+            type.random = "diamond", 
+            type.subgroup = "diamond",
+            common=FALSE,
+            squaresize = 0.7,
+            col.random = "black",
+            col.square = "blue",
+            colgap.forest.left = "2cm",
+            bysort = TRUE)
+
+dev.off()
+
+#Funnel plot estimating study effects
+funnel.meta(Lumi, xlab = "Luminal A Proportion") 
+
+#calculating heterogeneity
+metabias(Lum_a)
